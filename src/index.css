@@ -1,0 +1,508 @@
+/* ─── Google Fonts ────────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap');
+
+/* ─── Tailwind ────────────────────────────────────────────────────────────── */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DESIGN TOKENS  (CSS custom properties)
+   Upravuj zde → změní se všude
+═══════════════════════════════════════════════════════════════════════════ */
+:root {
+  /* Paleta */
+  --c-aubergine:   #2C001E;
+  --c-dark:        #1A0011;
+  --c-orange:      #E95420;
+  --c-orange-dim:  rgba(233, 84, 32, 0.22);
+  --c-orange-glow: rgba(233, 84, 32, 0.35);
+  --c-white-5:     rgba(255, 255, 255, 0.05);
+  --c-white-8:     rgba(255, 255, 255, 0.08);
+  --c-white-12:    rgba(255, 255, 255, 0.12);
+  --c-white-90:    rgba(255, 255, 255, 0.90);
+
+  /* Zaoblení */
+  --r-card-sm:  20px;
+  --r-card-md:  28px;
+  --r-card-lg:  32px;
+  --r-panel:    16px;
+  --r-pill:     999px;
+
+  /* Stíny */
+  --shadow-card:   0 4px 24px rgba(0, 0, 0, 0.45), 0 1px 0 rgba(255,255,255,0.06) inset;
+  --shadow-card-hover: 0 8px 32px rgba(0, 0, 0, 0.55), 0 0 0 2px rgba(233,84,32,0.55), 0 1px 0 rgba(255,255,255,0.08) inset;
+  --shadow-orange: 0 0 20px var(--c-orange-glow);
+
+  /* Přechody */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out:    cubic-bezier(0.22, 1, 0.36, 1);
+  --t-fast:  150ms;
+  --t-base:  250ms;
+  --t-slow:  400ms;
+
+  /* Minimální dotyková plocha (WCAG 2.5.5) */
+  --hit-min: 48px;
+  /* Grid a typografie – přepisuje Settings */
+  --grid-cols: 3;
+  --label-transform: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   BASE RESET
+═══════════════════════════════════════════════════════════════════════════ */
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+    /* Zabraň označování textu globálně – pro Jiříka */
+    -webkit-user-select: none;
+    user-select: none;
+    /* Přirozenější tap highlight */
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Povol výběr textu jen tam, kde dává smysl */
+  input, textarea, [contenteditable], p[data-selectable], span[data-selectable] {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+
+  html, body, #root {
+    height: 100%;
+    margin: 0; padding: 0;
+    font-family: "Ubuntu", ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing:  antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Zabraň rubber-band scroll na root úrovni */
+    overscroll-behavior: none;
+  }
+
+  html {
+    /* Dynamická viewport výška (iOS/Android toolbar) */
+    height: 100dvh;
+  }
+
+  body {
+    background: linear-gradient(135deg, var(--c-aubergine) 0%, var(--c-dark) 100%);
+    background-attachment: fixed;
+    min-height: 100dvh;
+    color: #ffffff;
+    color-scheme: dark;
+  }
+
+  /* Reset button globálně */
+  button {
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+    background: none;
+    padding: 0;
+    /* Minimální dotyková plocha */
+    min-width:  var(--hit-min);
+    min-height: var(--hit-min);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Výjimky: ikony a inline tlačítka bez min-size */
+  button[data-icon],
+  button[data-compact] {
+    min-width:  unset;
+    min-height: unset;
+  }
+
+  /* Focus viditelný jen při klávesnici/switch access */
+  :focus-visible {
+    outline: 2px solid var(--c-orange);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  /* Skryj scrollbary globálně, zachovej funkčnost */
+  * {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  *::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   KOMPONENTY  (sdílené třídy)
+═══════════════════════════════════════════════════════════════════════════ */
+@layer components {
+
+  /* ── Glassmorphism panel ──────────────────────────────────────────────── */
+  .glass-panel {
+    background:           var(--c-white-5);
+    backdrop-filter:      blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border:               1px solid var(--c-white-12);
+    border-radius:        var(--r-panel);
+  }
+
+  /* ── Piktogram karta – základní shell ───────────────────────────────── */
+  .picto-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+
+    background: var(--c-white-5);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--c-white-12);
+    border-radius: var(--r-card-md);
+
+    /* Jemný vnitřní highlight – "světlo shora" */
+    box-shadow: var(--shadow-card);
+
+    /* Přechody – všechny vlastnosti */
+    transition:
+      transform   var(--t-fast) var(--ease-spring),
+      box-shadow  var(--t-base) var(--ease-out),
+      border-color var(--t-base) var(--ease-out),
+      background  var(--t-base) var(--ease-out);
+
+    cursor: pointer;
+    overflow: hidden;
+  }
+
+  .picto-card:hover {
+    box-shadow: var(--shadow-card-hover);
+  }
+
+  .picto-card:active,
+  .picto-card[data-pressed="true"] {
+    transform: scale(0.94);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+  }
+
+  .picto-card[data-selected="true"] {
+    border-color: var(--c-orange);
+    box-shadow:   0 0 0 2px var(--c-orange), var(--shadow-orange);
+  }
+
+  .picto-card[data-speaking="true"] {
+    border-color: var(--c-orange);
+    animation: voicePulse 900ms ease-in-out infinite;
+  }
+
+  .picto-card[data-edit="true"] {
+    background:   rgba(60, 20, 80, 0.65);
+    border-color: rgba(180, 100, 255, 0.65);
+    box-shadow:   0 0 18px rgba(180,100,255,0.3);
+  }
+
+  /* ── Pill tlačítko ──────────────────────────────────────────────────── */
+  .btn-pill {
+    padding:       8px 20px;
+    border-radius: var(--r-pill);
+    font-family:   "Ubuntu", sans-serif;
+    font-size:     13px;
+    font-weight:   500;
+    letter-spacing: 0.03em;
+    transition:
+      background   var(--t-fast) var(--ease-out),
+      border-color var(--t-fast) var(--ease-out),
+      color        var(--t-fast) var(--ease-out),
+      transform    var(--t-fast) var(--ease-spring);
+    min-width:  var(--hit-min);
+    min-height: var(--hit-min);
+  }
+
+  .btn-pill:active { transform: scale(0.95); }
+
+  .btn-pill-primary {
+    background:   var(--c-orange-dim);
+    border:       1px solid rgba(233, 84, 32, 0.4);
+    color:        var(--c-orange);
+  }
+  .btn-pill-primary:hover {
+    background:   rgba(233, 84, 32, 0.32);
+  }
+
+  .btn-pill-ghost {
+    background:   var(--c-white-5);
+    border:       1px solid var(--c-white-12);
+    color:        rgba(255,255,255,0.5);
+  }
+  .btn-pill-ghost:hover {
+    background:   var(--c-white-8);
+    color:        rgba(255,255,255,0.85);
+  }
+
+  /* ── Stránkový přechod ───────────────────────────────────────────────── */
+  .page-enter {
+    animation: pageFadeIn var(--t-slow) var(--ease-out) forwards;
+  }
+
+  /* ── Scroll kontejner (pro Smart Bar a grid) ────────────────────────── */
+  .scroll-x {
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;
+    overscroll-behavior-x: contain;  /* overscroll-bounce efekt */
+  }
+
+  .scroll-y {
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+  }
+
+  /* ── Sentence token ─────────────────────────────────────────────────── */
+  .sentence-token {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding:       5px 10px 5px 14px;
+    border-radius: var(--r-pill);
+    background:    rgba(233, 84, 32, 0.13);
+    border:        1px solid rgba(233, 84, 32, 0.3);
+    color:         var(--c-orange);
+    font-size:     13px;
+    font-weight:   500;
+    white-space:   nowrap;
+    cursor:        pointer;
+    transition:
+      background   var(--t-fast) var(--ease-out),
+      border-color var(--t-fast) var(--ease-out),
+      box-shadow   var(--t-fast) var(--ease-out);
+    /* Hit area rozšíření bez vizuální změny */
+    min-height: var(--hit-min);
+  }
+
+  .sentence-token:hover {
+    background: rgba(233, 84, 32, 0.22);
+  }
+
+  .sentence-token[data-speaking="true"] {
+    background:   rgba(233, 84, 32, 0.3);
+    border-color: rgba(233, 84, 32, 0.8);
+    animation:    voicePulse 900ms ease-in-out infinite;
+  }
+
+  /* ── Category chip (SmartBar) ─────────────────────────────────────── */
+  .category-chip {
+    display:        inline-flex;
+    align-items:    center;
+    padding:        4px 11px;
+    border-radius:  var(--r-pill);
+    font-size:      10px;
+    font-weight:    700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    background:     rgba(233, 84, 32, 0.15);
+    color:          rgba(233, 84, 32, 0.9);
+    border:         1px solid rgba(233, 84, 32, 0.28);
+    white-space:    nowrap;
+    flex-shrink:    0;
+    align-self:     center;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   KEYFRAMES
+═══════════════════════════════════════════════════════════════════════════ */
+@layer utilities {
+
+  /* ── Fade-in pro stránky ─────────────────────────────────────────────── */
+  @keyframes pageFadeIn {
+    from {
+      opacity:   0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity:   1;
+      transform: translateY(0);
+    }
+  }
+
+  /* ── Voice pulse (oranžový okraj) ────────────────────────────────────── */
+  @keyframes voicePulse {
+    0%, 100% { box-shadow: 0 0 0 0   rgba(233, 84, 32, 0.7), var(--shadow-card); }
+    50%       { box-shadow: 0 0 0 8px rgba(233, 84, 32, 0),   var(--shadow-card); }
+  }
+
+  /* ── Speak bars (zvukový indikátor) ──────────────────────────────────── */
+  @keyframes speakBar {
+    from { transform: scaleY(0.3); opacity: 0.5; }
+    to   { transform: scaleY(1.0); opacity: 1.0; }
+  }
+
+  /* ── Ping (loading placeholder) ──────────────────────────────────────── */
+  @keyframes piktosPing {
+    75%, 100% { transform: scale(2.2); opacity: 0; }
+  }
+
+  /* ── Countdown pulse (SOS) ───────────────────────────────────────────── */
+  @keyframes countPulse {
+    0%, 100% { transform: scale(1);    opacity: 1;   }
+    50%       { transform: scale(1.18); opacity: 0.8; }
+  }
+
+  /* ── Skeleton shimmer ────────────────────────────────────────────────── */
+  @keyframes shimmer {
+    0%        { opacity: 0.45; }
+    50%       { opacity: 0.85; }
+    100%      { opacity: 0.45; }
+  }
+
+  /* ── Cloud spin ──────────────────────────────────────────────────────── */
+  @keyframes cloudSpin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* ── Pop-in (popovers, overlays) ─────────────────────────────────────── */
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.92) translateY(-6px); }
+    to   { opacity: 1; transform: scale(1)    translateY(0);    }
+  }
+
+  /* ── Recording blink ─────────────────────────────────────────────────── */
+  @keyframes recBlink {
+    0%, 100% { opacity: 1;    }
+    50%       { opacity: 0.35; }
+  }
+
+  /* ── Fade wave (speaker icon) ────────────────────────────────────────── */
+  @keyframes fadeWave {
+    from { opacity: 0.3; }
+    to   { opacity: 1.0; }
+  }
+
+  /* ── SOS long-press hint ─────────────────────────────────────────────── */
+  @keyframes sosHint {
+    0%, 100% { opacity: 0.5; }
+    50%       { opacity: 1.0; }
+  }
+
+  /* ── Stagger fade-in (pro grid karet) ────────────────────────────────── */
+  @keyframes cardReveal {
+    from {
+      opacity:   0;
+      transform: translateY(12px) scale(0.96);
+    }
+    to {
+      opacity:   1;
+      transform: translateY(0)    scale(1);
+    }
+  }
+
+  /* ─── Utility třídy pro animace ──────────────────────────────────────── */
+
+  .animate-page-enter     { animation: pageFadeIn  var(--t-slow) var(--ease-out) both; }
+  .animate-pop-in         { animation: popIn       180ms         var(--ease-out) both; }
+  .animate-shimmer        { animation: shimmer     1.6s          ease-in-out  infinite; }
+  .animate-speak-bar      { animation: speakBar    600ms         ease-in-out  infinite alternate; }
+  .animate-cloud-spin     { animation: cloudSpin   1.2s          linear       infinite; }
+  .animate-rec-blink      { animation: recBlink    800ms         ease-in-out  infinite; }
+  .animate-count-pulse    { animation: countPulse  1s            ease         infinite; }
+  .animate-piktos-ping    { animation: piktosPing  1.4s  cubic-bezier(0,0,.2,1) infinite; }
+
+  /* Staggered card reveal – do 12 karet */
+  .card-reveal {
+    animation: cardReveal var(--t-slow) var(--ease-out) both;
+  }
+  .card-reveal:nth-child(1)  { animation-delay:  0ms; }
+  .card-reveal:nth-child(2)  { animation-delay: 40ms; }
+  .card-reveal:nth-child(3)  { animation-delay: 80ms; }
+  .card-reveal:nth-child(4)  { animation-delay:120ms; }
+  .card-reveal:nth-child(5)  { animation-delay:160ms; }
+  .card-reveal:nth-child(6)  { animation-delay:200ms; }
+  .card-reveal:nth-child(7)  { animation-delay:240ms; }
+  .card-reveal:nth-child(8)  { animation-delay:280ms; }
+  .card-reveal:nth-child(9)  { animation-delay:320ms; }
+  .card-reveal:nth-child(10) { animation-delay:360ms; }
+  .card-reveal:nth-child(11) { animation-delay:400ms; }
+  .card-reveal:nth-child(12) { animation-delay:440ms; }
+
+  /* ─── Overscroll feedback (vizuální bounce hint) ─────────────────────── */
+  .scroll-x { scroll-snap-type: none; }
+  .scroll-x::-webkit-scrollbar { display: none; }
+
+  /* ─── select-none helper (explicitní, pro Jiříka) ───────────────────── */
+  .no-select {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none; /* iOS: zabrání callout menu */
+  }
+
+  /* ─── Hit area rozšíření bez vizuální změny ──────────────────────────── */
+  .hit-area-48 {
+    position: relative;
+    min-width:  var(--hit-min);
+    min-height: var(--hit-min);
+  }
+
+  /* Pseudo-element hit-area pro malé ikony */
+  .hit-area-48::before {
+    content:  "";
+    position: absolute;
+    inset:    50% 50%;
+    transform: translate(-50%, -50%);
+    min-width:  var(--hit-min);
+    min-height: var(--hit-min);
+  }
+
+  /* ─── Kontrast helpers ───────────────────────────────────────────────── */
+  .text-ubuntu-orange  { color: var(--c-orange); }
+  .bg-ubuntu-orange    { background-color: var(--c-orange); }
+  .border-ubuntu-orange { border-color: var(--c-orange); }
+
+  /* ─── Stíny ──────────────────────────────────────────────────────────── */
+  .shadow-card       { box-shadow: var(--shadow-card); }
+  .shadow-card-hover { box-shadow: var(--shadow-card-hover); }
+  .shadow-orange     { box-shadow: var(--shadow-orange); }
+
+  /* ─── Glassmorphism shorthand ────────────────────────────────────────── */
+  .glass {
+    background:              rgba(255,255,255,0.05);
+    backdrop-filter:         blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border:                  1px solid rgba(255,255,255,0.12);
+  }
+
+  /* ─── Typografie ─────────────────────────────────────────────────────── */
+  .label-uppercase {
+    font-size:      10px;
+    font-weight:    700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color:          rgba(255,255,255,0.35);
+  }
+
+  .text-dim      { color: rgba(255,255,255,0.35); }
+  .text-dimmer   { color: rgba(255,255,255,0.20); }
+  .text-dimmest  { color: rgba(255,255,255,0.12); }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ACCESSIBILITY  &  REDUCED MOTION
+═══════════════════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration:        0.01ms !important;
+    animation-iteration-count: 1      !important;
+    transition-duration:       0.01ms !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SAFE AREA (notch / Dynamic Island / Android navigation bar)
+═══════════════════════════════════════════════════════════════════════════ */
+.safe-top    { padding-top:    env(safe-area-inset-top);    }
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+.safe-left   { padding-left:   env(safe-area-inset-left);   }
+.safe-right  { padding-right:  env(safe-area-inset-right);  }

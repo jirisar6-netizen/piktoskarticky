@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="cs" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <!-- ── Základní SEO ──────────────────────────────────────────────── -->
+    <title>Piktos Portal</title>
+    <meta name="description"
+          content="Komunikační aplikace s piktogramy pro děti s autismem a poruchou komunikace." />
+    <meta name="keywords" content="piktogramy, AAC, autismus, komunikace, ARASAAC, čeština" />
+    <meta name="author"   content="Piktos Portal" />
+
+    <!-- ── PWA Manifest ──────────────────────────────────────────────── -->
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- ── Barvy UI ──────────────────────────────────────────────────── -->
+    <!-- Chrome / Android – barva stavového řádku a adresního řádku -->
+    <meta name="theme-color" content="#E95420"
+          media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1A0011"
+          media="(prefers-color-scheme: dark)" />
+    <!-- Fallback pro prohlížeče bez media query podpory -->
+    <meta name="theme-color" content="#E95420" />
+
+    <!-- ── Android / Chrome PWA ──────────────────────────────────────── -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name"       content="Piktos" />
+
+    <!-- ── Apple iOS / iPadOS ────────────────────────────────────────── -->
+    <meta name="apple-mobile-web-app-capable"           content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style"  content="black-translucent" />
+    <meta name="apple-mobile-web-app-title"             content="Piktos" />
+
+    <!-- Apple touch ikony (různé velikosti pro různé zařízení) -->
+    <link rel="apple-touch-icon"              href="/icons/apple-touch-icon.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152.png" />
+    <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192.png" />
+
+    <!-- Apple splash screens (volitelné – zlepší UX při přidání na plochu) -->
+    <!-- Pro generování splash screenů doporučuji: https://progressier.com/pwa-splash-screen-generator -->
+
+    <!-- ── Favicon ────────────────────────────────────────────────────── -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16.png" />
+
+    <!-- ── Microsoft Tiles (Windows 10/11 Start menu) ────────────────── -->
+    <meta name="msapplication-TileColor" content="#1A0011" />
+    <meta name="msapplication-TileImage" content="/icons/icon-144.png" />
+    <meta name="msapplication-config"    content="none" />
+
+    <!-- ── Open Graph (sdílení na sociálních sítích) ─────────────────── -->
+    <meta property="og:type"        content="website" />
+    <meta property="og:title"       content="Piktos Portal" />
+    <meta property="og:description" content="Komunikační aplikace s piktogramy pro děti s autismem." />
+    <meta property="og:image"       content="/icons/icon-512.png" />
+    <meta property="og:locale"      content="cs_CZ" />
+
+    <!-- ── Výkon: preconnect pro kritické domény ─────────────────────── -->
+    <!-- Google Fonts – Ubuntu -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- ARASAAC CDN – piktogramy -->
+    <link rel="preconnect" href="https://static.arasaac.org" />
+    <link rel="dns-prefetch" href="https://api.arasaac.org" />
+
+    <!-- ── Styl při načítání (zabraňuje bílému blesku) ───────────────── -->
+    <style>
+      /* Kritický inline CSS – viditelný PŘED načtením bundle */
+      html, body, #root {
+        margin: 0; padding: 0; height: 100%;
+        background-color: #1A0011;
+        color: #ffffff;
+        /* Šetří baterii na OLED displejích */
+        color-scheme: dark;
+      }
+
+      /* Prevent iOS rubber-band scroll na hlavní úrovni */
+      body {
+        overscroll-behavior: none;
+        -webkit-overflow-scrolling: touch;
+        /* Safe area insets pro iPhone s notchem / Dynamic Island */
+        padding: env(safe-area-inset-top)
+                 env(safe-area-inset-right)
+                 env(safe-area-inset-bottom)
+                 env(safe-area-inset-left);
+      }
+
+      /* Spinner při načítání aplikace */
+      #loading-screen {
+        position: fixed; inset: 0;
+        background: #1A0011;
+        display: flex; align-items: center; justify-content: center;
+        z-index: 9999;
+        transition: opacity 400ms ease;
+      }
+      #loading-screen.fade-out {
+        opacity: 0; pointer-events: none;
+      }
+      .loading-logo {
+        display: flex; flex-direction: column;
+        align-items: center; gap: 16px;
+      }
+      .loading-badge {
+        width: 64px; height: 64px; border-radius: 16px;
+        background: #E95420;
+        display: flex; align-items: center; justify-content: center;
+        font-family: system-ui, sans-serif;
+        font-size: 22px; font-weight: 700;
+        color: #fff; letter-spacing: -0.02em;
+      }
+      .loading-name {
+        font-family: system-ui, sans-serif;
+        font-size: 20px; font-weight: 700;
+        letter-spacing: 0.18em; text-transform: uppercase;
+        color: #E95420;
+      }
+      .loading-dot {
+        width: 6px; height: 6px; border-radius: 50%;
+        background: rgba(233,84,32,0.6);
+        animation: loadPulse 1.2s ease-in-out infinite;
+      }
+      .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+      .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+      .loading-dots { display: flex; gap: 6px; margin-top: 8px; }
+      @keyframes loadPulse {
+        0%, 100% { transform: scale(0.6); opacity: 0.4; }
+        50%       { transform: scale(1.2); opacity: 1.0; }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- ── Loading screen (skryje se po hydrataci Reactu) ─────────────── -->
+    <div id="loading-screen" aria-hidden="true">
+      <div class="loading-logo">
+        <div class="loading-badge">PK</div>
+        <div class="loading-name">PIKTOS</div>
+        <div class="loading-dots">
+          <div class="loading-dot"></div>
+          <div class="loading-dot"></div>
+          <div class="loading-dot"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── React root ──────────────────────────────────────────────────── -->
+    <div id="root"></div>
+
+    <!-- ── Skrytí loading screenu po mountu ───────────────────────────── -->
+    <script>
+      // Spustí se synchronně při DOMContentLoaded
+      // React se mountuje asynchronně → čekáme na první paint
+      window.addEventListener("DOMContentLoaded", function () {
+        var el = document.getElementById("loading-screen");
+        if (!el) return;
+        // Krátká prodleva zajistí, že React už vyrenderoval
+        var observer = new MutationObserver(function () {
+          var root = document.getElementById("root");
+          if (root && root.childElementCount > 0) {
+            el.classList.add("fade-out");
+            setTimeout(function () { el.style.display = "none"; }, 420);
+            observer.disconnect();
+          }
+        });
+        observer.observe(document.getElementById("root"), { childList: true });
+        // Fail-safe: skryj po 4s i bez Reactu
+        setTimeout(function () {
+          el.classList.add("fade-out");
+          setTimeout(function () { el.style.display = "none"; }, 420);
+        }, 4000);
+      });
+    </script>
+
+    <!-- ── Hlavní bundle (Vite injectuje) ─────────────────────────────── -->
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
